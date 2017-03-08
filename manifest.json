@@ -4,11 +4,14 @@
   "name": "Allow Select And Copy",
   "short_name": "Copy Unblock",
   "description": "Allow selection and copy, right click and paste on any webpage with copy protection",
-  "version": "2",
+  "version": "2.5",
 
   "browser_action": {
     "default_icon": "icon16.png",
     "default_title": "Extension works automatically after 2 seconds when page loaded"
+  },
+  "background": {
+    "scripts": ["background.js"]
   },
   "icons": {
     "16": "icon16.png",
@@ -17,12 +20,17 @@
   },
   "permissions": [
     "activeTab",
+    "storage",
     "https://ajax.googleapis.com/"
+  ],
+  "web_accessible_resources": [
+    "allow_select-and-copy.js"
   ],
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["script.js"]
+      "js": ["script.js"],
+      "run_at": "document_end"
     }
   ]
 }
