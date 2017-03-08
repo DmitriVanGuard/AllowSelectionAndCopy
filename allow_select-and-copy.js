@@ -4,7 +4,6 @@ var ultraModeLogic = function (event){
 }; 
 
 autoAllowSelectAndCopy(window, document, document.body);
-window.addEventListener('mousedown', function(e){ e.stopPropagation(); }, true);
 window.addEventListener('keydown', ultraModeLogic, true);
 window.addEventListener('keyup', ultraModeLogic, true);
 
@@ -17,9 +16,12 @@ var parentModification = function(event){
 		child.onmousedown = child.oncontextmenu = child.ondragstart = child.onclick = child.onselectstart = child.onmousemove = child.oncopy = null;
 	}
 };
+var mouseUltra = function(event){
+	event.stopPropagation();
+};
 var ultraMode = {
 	toggle: false, 
-	17: false, 
+	18: false, 
 	16: false, 
 	65: false
 };
@@ -35,14 +37,15 @@ function ultraKeyPressed(event){
 	}
 }
 function ultraCombinationPressed(){
-	if(ultraMode[17] && ultraMode[16] && ultraMode[65]){
+	if(ultraMode[18] && ultraMode[16] && ultraMode[65]){
 		if(ultraMode.toggle){
 			document.removeEventListener('selectstart', window.parentModification, true);
+			window.removeEventListener('mousedown', mouseUltra, true);
 			ultraMode.toggle = false;
 		}
 		else{
 			document.addEventListener('selectstart', window.parentModification, true);ultraMode.toggle = true;
-			
+			window.addEventListener('mousedown', mouseUltra, true);
 		}
 	}
 }

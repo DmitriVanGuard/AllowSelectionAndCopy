@@ -8,7 +8,7 @@
 
   "browser_action": {
     "default_icon": "icon16.png",
-    "default_title": "Extension works automatically after 2 seconds when page loaded"
+    "default_title": "ALT + SHIFT + A - to enter ULTRA COPY MODE"
   },
   "background": {
     "scripts": ["background.js"]
@@ -20,7 +20,6 @@
   },
   "permissions": [
     "activeTab",
-    "storage",
     "https://ajax.googleapis.com/"
   ],
   "web_accessible_resources": [
