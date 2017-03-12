@@ -12,18 +12,22 @@ var parentModification = function(event){
 	var child = event.target || event.srcElement;
 	child.onmousedown = child.oncontextmenu = child.ondragstart = child.onclick = child.onselectstart = child.onmousemove = child.oncopy = null;
 	while(child.parentNode){ 
-		child = child.parentNode; 
+		child = child.parentNode;
+		child.addEventListener("selectstart", ultraPropagation, true);
+		child.addEventListener("mousedown", ultraPropagation, true);
 		child.onmousedown = child.oncontextmenu = child.ondragstart = child.onclick = child.onselectstart = child.onmousemove = child.oncopy = null;
 	}
 };
-var mouseUltra = function(event){
-	event.stopPropagation();
-};
 var ultraMode = {
-	toggle: false, 
+	toggle: false,
 	18: false, 
 	16: false, 
 	65: false
+};
+var ultraPropagation = function(event){
+	if(ultraMode.toggle){
+		event.stopPropagation();
+	}	
 };
 function ultraKeyPressed(event){
 	if(event.type == 'keydown'){
@@ -40,12 +44,12 @@ function ultraCombinationPressed(){
 	if(ultraMode[18] && ultraMode[16] && ultraMode[65]){
 		if(ultraMode.toggle){
 			document.removeEventListener('selectstart', window.parentModification, true);
-			window.removeEventListener('mousedown', mouseUltra, true);
 			ultraMode.toggle = false;
 		}
 		else{
-			document.addEventListener('selectstart', window.parentModification, true);ultraMode.toggle = true;
-			window.addEventListener('mousedown', mouseUltra, true);
+			document.addEventListener('selectstart', window.parentModification, true);
+			ultraMode.toggle = true;
+			window.addEventListener('mousedown', ultraPropagation, true);
 		}
 	}
 }
