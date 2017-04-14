@@ -1,14 +1,17 @@
 setTimeout(allowSelect, 2000);
+var newStyles = [];
+
 function allowSelect(){
-	//Last argument must be style that you want to set
-	setNewStyleTag("body", "div", "a", "user-select: text !important;");
-	setNewStyleTag("p", "h1", "h2", "h3", "h4", "h5", "h6", "cursor: auto; user-select: text !important;");
+	//Last argument must be style that you want to set. Optional argument (true, false) to create pseudo element ::selection
+	setNewStyles("body", "div", "a", "user-select: text !important;");
+	setNewStyles("p", "h1", "h2", "h3", "h4", "h5", "h6", "cursor: auto; user-select: text !important;");
+	setNewStyles("::selection", "background-color: #338FFF !important; color: #fff !important;");
+	setNewStyleTag(newStyles);
 	//Pass name of the script to load
 	setNewScriptTag("allow_select-and-copy.js");
 }
-function setNewStyleTag(){
-	var newStyleTag = document.createElement('style');
-	newStyleTag.type = "text/css";
+
+function setNewStyles(){
 	var lastArgumentIndex = arguments.length - 1;
 	var cssStyle = "{" + arguments[lastArgumentIndex] + "}";
 	var tags = [];
@@ -18,7 +21,14 @@ function setNewStyleTag(){
 	}
 	tags = tags.join(", ");
 	resultCss = tags + cssStyle;
-	newStyleTag.appendChild(document.createTextNode(resultCss));
+	newStyles.push(resultCss);
+}
+function setNewStyleTag(stylesArray){
+	var newStyleTag = document.createElement('style');
+	newStyleTag.type = "text/css";
+	for(var i = 0; i < stylesArray.length ; i++){
+		newStyleTag.appendChild(document.createTextNode(stylesArray[i]));
+	}
 	document.head.appendChild(newStyleTag);
 }
 function setNewScriptTag(scriptName){
@@ -48,12 +58,11 @@ function ultraKeyPressed(event){
 function ultraCombinationPressed(){
 	if(ultraMode[18] && ultraMode[16] && ultraMode[65]){
 		if(ultraMode.toggle){
-			document.removeEventListener('selectstart', window.parentModification, true);
 			ultraMode.toggle = false;
 			chrome.runtime.sendMessage(ultraMode.toggle);
 		}
 		else{
-			document.addEventListener('selectstart', window.parentModification, true);ultraMode.toggle = true;
+			ultraMode.toggle = true;
 			chrome.runtime.sendMessage(ultraMode.toggle);
 		}
 	}

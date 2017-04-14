@@ -1,29 +1,19 @@
-var ultraModeLogic = function (event){
-	ultraKeyPressed(event);
-	ultraCombinationPressed();
-}; 
-
-autoAllowSelectAndCopy(window, document, document.body);
-window.addEventListener('keydown', ultraModeLogic, true);
-window.addEventListener('keyup', ultraModeLogic, true);
-
-//Inherited copy unblock logic
-var parentModification = function(event){
-	var child = event.target || event.srcElement;
-	child.onmousedown = child.oncontextmenu = child.ondragstart = child.onclick = child.onselectstart = child.onmousemove = child.oncopy = null;
-	while(child.parentNode){ 
-		child = child.parentNode;
-		child.addEventListener("selectstart", ultraPropagation, true);
-		child.addEventListener("mousedown", ultraPropagation, true);
-		child.onmousedown = child.oncontextmenu = child.ondragstart = child.onclick = child.onselectstart = child.onmousemove = child.oncopy = null;
-	}
-};
 var ultraMode = {
 	toggle: false,
 	18: false, 
 	16: false, 
 	65: false
 };
+var ultraModeLogic = function (event){
+	ultraKeyPressed(event);
+	ultraCombinationPressed();
+}; 
+autoAllowSelectAndCopy(window, document, document.body);
+window.addEventListener('keydown', ultraModeLogic, true);
+window.addEventListener('keyup', ultraModeLogic, true);
+window.addEventListener('copy', function(e){e.stopPropagation();}, true);
+
+
 var ultraPropagation = function(event){
 	if(ultraMode.toggle){
 		event.stopPropagation();
@@ -43,12 +33,12 @@ function ultraKeyPressed(event){
 function ultraCombinationPressed(){
 	if(ultraMode[18] && ultraMode[16] && ultraMode[65]){
 		if(ultraMode.toggle){
-			document.removeEventListener('selectstart', window.parentModification, true);
+			removeHandlers("selectstart mousedown contextmenu copy", ultraPropagation)
 			ultraMode.toggle = false;
 		}
 		else{
-			document.addEventListener('selectstart', window.parentModification, true);ultraMode.toggle = true;
-			window.addEventListener('mousedown', ultraPropagation, true);
+			ultraMode.toggle = true;
+			addHandlers("selectstart mousedown contextmenu copy", ultraPropagation)
 		}
 	}
 }
@@ -59,4 +49,16 @@ function autoAllowSelectAndCopy(){
 			element.onselectstart = element.oncopy = element.oncontextmenu = element.onclick = element.onkeypress = element.onkeyup = element.onkeydown = element.onmousedown = element.onmousemove = element.onmouseup = null;
 		}
 	}
+}
+function addHandlers(events, callback){
+	events = events.split(" ");
+	events.forEach(function(item){
+		window.addEventListener(item, callback, true);
+	});
+}
+function removeHandlers(events, callback){
+	events = events.split(" ");
+	events.forEach(function(item){
+		window.removeEventListener(item, callback, true);
+	});
 }
