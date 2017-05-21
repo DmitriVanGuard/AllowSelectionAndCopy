@@ -4,7 +4,7 @@
   "name": "Allow Select And Copy",
   "short_name": "Copy Unblock",
   "description": "Allow selection and copy, right click and paste on any webpage with copy protection",
-  "version": "2.85",
+  "version": "2.9",
 
   "browser_action": {
     "default_icon": "icon16.png",

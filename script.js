@@ -12,10 +12,10 @@ function allowSelect(){
 }
 
 function setNewStyles(){
-	var lastArgumentIndex = arguments.length - 1;
-	var cssStyle = "{" + arguments[lastArgumentIndex] + "}";
-	var tags = [];
-	var resultCss;
+	var lastArgumentIndex = arguments.length - 1,
+		cssStyle = "{" + arguments[lastArgumentIndex] + "}",
+		tags = [],
+		resultCss;
 	for(var i = 0; i < lastArgumentIndex; i++){
 		tags.push(arguments[i]);
 	}
@@ -35,7 +35,7 @@ function setNewScriptTag(scriptName){
 	var newScriptTag = document.createElement('script');
 	newScriptTag.type = 'text/javascript';
 	newScriptTag.src = chrome.extension.getURL(scriptName);
-	document.body.appendChild(newScriptTag);
+	document.body.appendChild(newScriptTag); // Load script to page to see full potential
 }
 
 var ultraMode = {
@@ -58,12 +58,10 @@ function ultraKeyPressed(event){
 function ultraCombinationPressed(){
 	if(ultraMode[18] && ultraMode[16] && ultraMode[65]){
 		if(ultraMode.toggle){
-			ultraMode.toggle = false;
-			chrome.runtime.sendMessage(ultraMode.toggle);
+			ultraModeToggleChange(false);
 		}
 		else{
-			ultraMode.toggle = true;
-			chrome.runtime.sendMessage(ultraMode.toggle);
+			ultraModeToggleChange(true);
 		}
 	}
 }
@@ -74,3 +72,8 @@ var ultraModeLogic = function (event){
 
 window.addEventListener('keydown', ultraModeLogic, true);
 window.addEventListener('keyup', ultraModeLogic, true);
+
+function ultraModeToggleChange(value){
+	ultraMode.toggle = value;
+	chrome.runtime.sendMessage(ultraMode.toggle);
+}
