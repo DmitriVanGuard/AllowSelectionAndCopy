@@ -1,9 +1,9 @@
-setTimeout(allowSelect, 2000);
+setTimeout(allowSelect, 3000);
 var newStyles = [];
 
 function allowSelect(){
 	//Last argument must be style that you want to set. Optional argument (true, false) to create pseudo element ::selection
-	setNewStyles("body", "div", "a", "user-select: text !important;");
+	setNewStyles("body", "div", "a", "p", "span", "user-select: text !important;");
 	setNewStyles("p", "h1", "h2", "h3", "h4", "h5", "h6", "cursor: auto; user-select: text !important;");
 	setNewStyles("::selection", "background-color: #338FFF !important; color: #fff !important;");
 	setNewStyleTag(newStyles);
@@ -30,12 +30,27 @@ function setNewStyleTag(stylesArray){
 		newStyleTag.appendChild(document.createTextNode(stylesArray[i]));
 	}
 	document.head.appendChild(newStyleTag);
+	appendIFrame('head', newStyleTag);
 }
 function setNewScriptTag(scriptName){
 	var newScriptTag = document.createElement('script');
 	newScriptTag.type = 'text/javascript';
 	newScriptTag.src = chrome.extension.getURL(scriptName);
 	document.body.appendChild(newScriptTag); // Load script to page to see full potential
+	appendIFrame('body', newScriptTag);
+}
+
+function appendIFrame(target, obj){
+	iframes = window.frames;
+	for(var i = 0; i < iframes.length; i++){
+		try{
+			iframes[i].document[target].appendChild(obj);
+		}
+		catch(err){
+			console.log(err)
+		}
+	}
+	console.log("Appended Iframe");
 }
 
 var ultraMode = {
@@ -59,9 +74,11 @@ function ultraCombinationPressed(){
 	if(ultraMode[18] && ultraMode[16] && ultraMode[65]){
 		if(ultraMode.toggle){
 			ultraModeToggleChange(false);
+			console.log('ultra', false);
 		}
 		else{
 			ultraModeToggleChange(true);
+			console.log('ultra', true);
 		}
 	}
 }
