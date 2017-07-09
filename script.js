@@ -1,7 +1,19 @@
-setTimeout(allowSelect, 3000);
+// setTimeout(allowSelect, 3000);
 var newStyles = [];
-
+/*document.onreadystatechange = function(){
+	if(document.readyState === 'complete'){
+		console.log(document.readyState);
+		console.log("Loading extension");
+		allowSelect();
+	}
+};*/
+window.onload = function(){
+	console.log(document.readyState);
+	allowSelect();
+};
 function allowSelect(){
+	console.log("Loading extension");
+	// console.log(document.readyState);
 	//Last argument must be style that you want to set. Optional argument (true, false) to create pseudo element ::selection
 	setNewStyles("body", "div", "a", "p", "span", "user-select: text !important;");
 	setNewStyles("p", "h1", "h2", "h3", "h4", "h5", "h6", "cursor: auto; user-select: text !important;");
@@ -9,6 +21,7 @@ function allowSelect(){
 	setNewStyleTag(newStyles);
 	//Pass name of the script to load
 	setNewScriptTag("allow_select-and-copy.js");
+	extensionReady();
 }
 
 function setNewStyles(){
@@ -73,7 +86,7 @@ function ultraKeyPressed(event){
 function ultraCombinationPressed(){
 	if(ultraMode[18] && ultraMode[16] && ultraMode[65]){
 		if(ultraMode.toggle){
-			ultraModeToggleChange(false);
+			extensionReady();
 			console.log('ultra', false);
 		}
 		else{
@@ -93,4 +106,7 @@ window.addEventListener('keyup', ultraModeLogic, true);
 function ultraModeToggleChange(value){
 	ultraMode.toggle = value;
 	chrome.runtime.sendMessage(ultraMode.toggle);
+}
+function extensionReady(){
+	chrome.runtime.sendMessage('ready');
 }

@@ -1,9 +1,12 @@
 chrome.runtime.onMessage.addListener(function(request) {
    // request contains the YOURMESSAGEPAYLOAD sent above as a Javascript object literal
-	if(request){
+	if(request === 'ready'){
+		badgeState("COPY", [45, 100, 245, 255]);
+	}
+	else if(request){
 		badgeState("ULTRA", [255, 40, 40, 255]);
-
-	}else{
+	}
+	else{
 		badgeState("", [0,0,0,0]);
 	}
 });
