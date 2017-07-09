@@ -1,12 +1,5 @@
-// setTimeout(allowSelect, 3000);
+chrome.runtime.sendMessage('wait');
 var newStyles = [];
-/*document.onreadystatechange = function(){
-	if(document.readyState === 'complete'){
-		console.log(document.readyState);
-		console.log("Loading extension");
-		allowSelect();
-	}
-};*/
 window.onload = function(){
 	console.log(document.readyState);
 	allowSelect();
