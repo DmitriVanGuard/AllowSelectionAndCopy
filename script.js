@@ -1,9 +1,6 @@
 chrome.runtime.sendMessage('wait');
 var newStyles = [];
-window.onload = function(){
-	console.log(document.readyState);
-	allowSelect();
-};
+window.onload = allowSelect;
 function allowSelect(){
 	console.log("Loading extension");
 	// console.log(document.readyState);
