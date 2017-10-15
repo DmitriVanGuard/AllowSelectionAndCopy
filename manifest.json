@@ -4,10 +4,11 @@
   "name": "Allow Select And Copy",
   "short_name": "Copy Unblock",
   "description": "Allow selection and copy, right click and paste on any webpage with copy protection",
-  "version": "3.0.1",
+  "version": "3.1.0",
 
   "browser_action": {
     "default_icon": "icon16.png",
+    "default_popup": "popup.html",
     "default_title": "ALT + SHIFT + A to enter ULTRA COPY MODE"
   },
   "background": {
@@ -29,7 +30,9 @@
     {
       "matches": ["http://*/*", "https://*/*"],
       "js": ["script.js"],
-      "run_at": "document_end"
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ]
+
 }
