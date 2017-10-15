@@ -1,13 +1,13 @@
-var ultraMode = {
+const ultraMode = {
 	toggle: false,
 	18: false,
 	16: false,
 	65: false
 };
 
-var defaultEventHandlersContainer = [];
+const defaultEventHandlersContainer = [];
 
-var defaultHandlers = [
+const defaultHandlers = [
 	'onselectstart',
 	'oncopy',
 	'oncontextmenu',
@@ -20,46 +20,46 @@ var defaultHandlers = [
 	'onmouseup'
 ];
 
+const newStyles = [];
+
 chrome.runtime.sendMessage('wait');
-var newStyles = [];
 window.addEventListener('load', allowSelect);
+
 function allowSelect() {
 	console.log('Loading extension');
-	// console.log(document.readyState);
-	//Last argument must be style that you want to set. Optional argument (true, false) to create pseudo element ::selection
-	setNewStyles('body', 'div', 'a', 'p', 'span', 'user-select: text !important;');
-	setNewStyles('p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cursor: auto; user-select: text !important;');
-	setNewStyles('::selection', 'background-color: #338FFF !important; color: #fff !important;');
+
+	if (newStyles.length === 0) {
+		setNewStyles('user-select: text !important;', 'body', 'div', 'a', 'p', 'span');
+		setNewStyles('cursor: auto; user-select: text !important;', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6');
+		setNewStyles('background-color: #338FFF !important; color: #fff !important;', '::selection');
+	}
+
 	setNewStyleTag(newStyles);
-	autoAllowSelectAndCopy(defaultEventHandlersContainer, window, document, document.documentElement, document.body);
 	extensionReady();
+	if (defaultEventHandlersContainer.length > 0) {
+		disableSiteHandlers(defaultEventHandlersContainer);
+	}
+	autoAllowSelectAndCopy(defaultEventHandlersContainer, window, document, document.documentElement, document.body);
 }
 
-function setNewStyles() {
-	var lastArgumentIndex = arguments.length - 1,
-		cssStyle = '{' + arguments[lastArgumentIndex] + '}',
-		tags = [],
-		resultCss;
-	for (var i = 0; i < lastArgumentIndex; i++) {
-		tags.push(arguments[i]);
-	}
-	tags = tags.join(', ');
-	resultCss = tags + cssStyle;
+/* *** APPEND DOM *** */
+function setNewStyles(style, ...selectors) {
+	const resultCss = `${selectors.join(', ')}{ ${style} }`;
 	newStyles.push(resultCss);
 }
 function setNewStyleTag(stylesArray) {
-	var newStyleTag = document.createElement('style');
+	const newStyleTag = document.createElement('style');
 	newStyleTag.type = 'text/css';
-	for (var i = 0; i < stylesArray.length; i++) {
+	for (let i = 0; i < stylesArray.length; i++) {
 		newStyleTag.appendChild(document.createTextNode(stylesArray[i]));
 	}
+	newStyleTag.setAttribute('data-asas-style', '');
 	document.head.appendChild(newStyleTag);
 	appendIFrame('head', newStyleTag);
 }
-
 function appendIFrame(target, obj) {
-	iframes = window.frames;
-	for (var i = 0; i < iframes.length; i++) {
+	const iframes = window.frames;
+	for (let i = 0; i < iframes.length; i++) {
 		try {
 			iframes[i].document[target].appendChild(obj);
 			console.log('Appended Iframe');
@@ -68,7 +68,13 @@ function appendIFrame(target, obj) {
 		}
 	}
 }
+/* *** APPEND DOM END *** */
 
+/* *** ULTRA MODE LOGIC *** */
+const ultraModeLogic = function(event) {
+	ultraKeyPressed(event);
+	ultraCombinationPressed();
+};
 function ultraKeyPressed(event) {
 	if (event.type == 'keydown') {
 		if (ultraMode.hasOwnProperty(event.keyCode)) {
@@ -87,36 +93,6 @@ function ultraCombinationPressed() {
 		toggleUltraHandlers('selectstart mousedown contextmenu copy', ultraPropagation, ultraMode.toggle);
 	}
 }
-var ultraModeLogic = function(event) {
-	ultraKeyPressed(event);
-	ultraCombinationPressed();
-};
-
-function extensionReady() {
-	chrome.runtime.sendMessage('ready');
-}
-
-var ultraPropagation = function(event) {
-	if (ultraMode.toggle) {
-		event.stopPropagation();
-	}
-};
-
-// Saving default handlers to backup them if user disable extension in POPUP
-function autoAllowSelectAndCopy(obj, ...elems) {
-	elems.forEach((elem, index) => {
-		if (obj[index]) return;
-		var elemContainer = {};
-		elemContainer.refElem = elem;
-		defaultHandlers.forEach(function(item) {
-			elemContainer[item] = elem[item];
-			elem[item] = null;
-		});
-		obj.push(elemContainer);
-	});
-	console.log(obj);
-}
-
 function toggleUltraHandlers(events, callback, activate) {
 	events = events.split(' ');
 	if (activate) {
@@ -131,6 +107,45 @@ function toggleUltraHandlers(events, callback, activate) {
 		chrome.runtime.sendMessage('ready');
 	}
 }
+const ultraPropagation = function(event) {
+	if (ultraMode.toggle) event.stopPropagation();
+};
+
+/* *** ULTRA MODE LOGIC END *** */
+
+function extensionReady() {
+	chrome.runtime.sendMessage('ready');
+}
+
+// Saving default handlers to backup them if user disable extension in POPUP
+function autoAllowSelectAndCopy(arr, ...elems) {
+	elems.forEach((elem, index) => {
+		const elemContainer = {};
+		elemContainer.refElem = elem;
+		defaultHandlers.forEach(function(item) {
+			elemContainer[item] = elem[item];
+			elem[item] = null;
+		});
+		arr.push(elemContainer);
+	});
+}
+
+function disableExtension() {
+	disableSiteHandlers(defaultEventHandlersContainer);
+
+	document.querySelector('[data-asas-style]').remove();
+
+	function disableSiteHandlers(arr) {
+		arr.forEach(item => {
+			for (const prop in item) {
+				if (item[prop] === item.refElem) continue;
+				item.refElem[prop] = item[prop];
+			}
+		});
+	}
+
+	console.log('Extension disabled');
+}
 
 window.addEventListener('keydown', ultraModeLogic, true);
 window.addEventListener('keyup', ultraModeLogic, true);
@@ -138,5 +153,5 @@ window.addEventListener('keyup', ultraModeLogic, true);
 //Manage extension from a popup settings
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	console.log(sender.tab ? 'from a content script:' + sender.tab.url : 'from the extension');
-	if (request.greeting == 'hello') sendResponse({ farewell: 'goodbye' });
+	if (request.disableExtension) disableExtension();
 });
