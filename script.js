@@ -36,9 +36,6 @@ function allowSelect() {
 
 	setNewStyleTag(newStyles);
 	extensionReady();
-	if (defaultEventHandlersContainer.length > 0) {
-		disableSiteHandlers(defaultEventHandlersContainer);
-	}
 	autoAllowSelectAndCopy(defaultEventHandlersContainer, window, document, document.documentElement, document.body);
 }
 
@@ -133,7 +130,8 @@ function autoAllowSelectAndCopy(arr, ...elems) {
 function disableExtension() {
 	disableSiteHandlers(defaultEventHandlersContainer);
 
-	document.querySelector('[data-asas-style]').remove();
+	const styleTag = document.querySelector('[data-asas-style]');
+	if (styleTag) styleTag.remove();
 
 	function disableSiteHandlers(arr) {
 		arr.forEach(item => {
@@ -153,5 +151,8 @@ window.addEventListener('keyup', ultraModeLogic, true);
 //Manage extension from a popup settings
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	console.log(sender.tab ? 'from a content script:' + sender.tab.url : 'from the extension');
-	if (request.disableExtension) disableExtension();
+	if (request.hasOwnProperty('extStatus')) {
+		request.extStatus ? allowSelect() : disableExtension();
+		console.log(request.extStatus);
+	}
 });

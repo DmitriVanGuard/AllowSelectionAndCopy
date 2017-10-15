@@ -89,15 +89,25 @@ function changeBackgroundColor(color) {
 // user devices.
 document.addEventListener('DOMContentLoaded', () => {
   getCurrentTabUrl((url, tabId) => {
-    var dropdown = document.getElementById('dropdown');
+    const extToggle = document.getElementById('extToggle');
     // Load the saved background color for this page and modify the dropdown
     // value, if needed.
 
     // Ensure the background color is changed and saved when the dropdown
     // selection changes.
-    dropdown.addEventListener('change', () => {
-      changeBackgroundColor(dropdown.value);
-      chrome.runtime.sendMessage(true);
+    let extStatus = true;
+    extToggle.addEventListener('click', () => {
+      // changeBackgroundColor(dropdown.value);
+      if (extStatus) {
+        chrome.tabs.sendMessage(tabId, { extStatus: false });
+        extToggle.textContent = 'Enable Extension';
+      } else {
+        chrome.tabs.sendMessage(tabId, { extStatus: true });
+        extToggle.textContent = 'Disable Extension';
+      }
+
+      extStatus = !extStatus;
+      console.log(extStatus);
       // saveBackgroundColor(url, dropdown.value);
     });
   });
