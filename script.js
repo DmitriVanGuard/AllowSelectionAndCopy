@@ -29,10 +29,7 @@ window.addEventListener('load', checkExtensionStatus);
 
 function checkExtensionStatus() {
 	chrome.storage.sync.get(window.location.host, item => {
-		console.log(item);
-		console.log(Object.keys(item).length);
 		extActive = Object.keys(item).length === 0;
-		console.log(extActive);
 		extActive ? allowSelect() : setExtensionBadgeStatus('off');
 	});
 }
@@ -75,7 +72,7 @@ function appendIFrame(target, obj) {
 	for (let i = 0; i < iframes.length; i++) {
 		try {
 			iframes[i].document[target].appendChild(obj);
-			console.log('Appended Iframe');
+			// console.log('Appended Iframe');
 		} catch (err) {
 			// console.log(err);
 		}
@@ -103,7 +100,7 @@ function ultraCombinationPressed() {
 	if (ultraMode[18] && ultraMode[16] && ultraMode[65]) {
 		ultraMode.toggle = !ultraMode.toggle;
 		console.log('ultra', ultraMode.toggle);
-		toggleUltraHandlers('selectstart mousedown contextmenu copy', ultraPropagation, ultraMode.toggle);
+		toggleUltraHandlers('selectstart mousedown contextmenu copy keydown', ultraPropagation, ultraMode.toggle);
 	}
 }
 function toggleUltraHandlers(events, callback, activate) {
@@ -167,10 +164,15 @@ function setExtensionBadgeStatus(status) {
 
 //Manage extension from a popup settings
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	// console.log(sender.tab ? 'from a content script:' + sender.tab.url : 'from the extension');
 	if (request.hasOwnProperty('extStatus')) {
 		request.extStatus ? allowSelect() : disableExtension();
-		console.log(request.extStatus);
+	}
+	if (request.hasOwnProperty('extReload')) {
+		if (request.extReload) {
+			console.log('Reloading...');
+			disableExtension();
+			checkExtensionStatus();
+		}
 	}
 });
 

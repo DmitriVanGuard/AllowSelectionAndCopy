@@ -46,23 +46,20 @@ function changeExtensionStatus(extStatus, tabId, elem) {
 document.addEventListener('DOMContentLoaded', () => {
   getCurrentTabUrl((url, tabId) => {
     const extToggle = document.getElementById('extToggle');
+    const extReload = document.getElementById('extReload');
 
     getExtensionStatus(url, savedStatus => {
-      console.log(typeof savedStatus === 'undefined' || savedStatus.extStatus);
       extStatus = typeof savedStatus === 'undefined' || savedStatus.extStatus ? true : false;
-      console.log(`extStatus ${extStatus}`);
-      // extStatus = savedStatus.extStatus;
       extToggle.checked = extStatus;
     });
 
-    console.log(url);
-
     extToggle.addEventListener('change', () => {
       extStatus = changeExtensionStatus(extStatus, tabId, extToggle);
-      // const stat = { [url.slice(0, -1)]: { extStatus: { status: true, parent: url.slice(0, -1) } } };
-      // saveExtensionStatus(url, extStatus);
-      // console.log(stat);
       extStatus ? chrome.storage.sync.remove(url) : chrome.storage.sync.set({ [url]: { extStatus } });
+    });
+
+    extReload.addEventListener('click', () => {
+      chrome.tabs.sendMessage(tabId, { extReload: true });
     });
   });
 });
