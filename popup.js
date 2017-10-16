@@ -43,17 +43,15 @@ function changeExtensionStatus(extStatus, tabId, elem) {
   return extStatus;
 }
 
-function setInitialExtensionStatus(status) {
-  console.log(status);
-  extStatus = status;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   getCurrentTabUrl((url, tabId) => {
     const extToggle = document.getElementById('extToggle');
 
     getExtensionStatus(url, savedStatus => {
-      extStatus = savedStatus.extStatus;
+      console.log(typeof savedStatus === 'undefined' || savedStatus.extStatus);
+      extStatus = typeof savedStatus === 'undefined' || savedStatus.extStatus ? true : false;
+      console.log(`extStatus ${extStatus}`);
+      // extStatus = savedStatus.extStatus;
       extToggle.checked = extStatus;
     });
 
@@ -64,8 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // const stat = { [url.slice(0, -1)]: { extStatus: { status: true, parent: url.slice(0, -1) } } };
       // saveExtensionStatus(url, extStatus);
       // console.log(stat);
-
-      chrome.storage.sync.set({ [url]: { extStatus } });
+      extStatus ? chrome.storage.sync.remove(url) : chrome.storage.sync.set({ [url]: { extStatus } });
     });
   });
 });

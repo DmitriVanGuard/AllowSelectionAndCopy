@@ -25,13 +25,19 @@ const defaultHandlers = [
 const newStyles = [];
 
 chrome.runtime.sendMessage('wait');
-window.addEventListener('load', allowSelect);
+window.addEventListener('load', checkExtensionStatus);
 
-function allowSelect() {
+function checkExtensionStatus() {
 	chrome.storage.sync.get(window.location.host, item => {
 		console.log(item);
+		console.log(Object.keys(item).length);
+		extActive = Object.keys(item).length === 0;
+		console.log(extActive);
+		extActive ? allowSelect() : setExtensionBadgeStatus('off');
 	});
+}
 
+function allowSelect() {
 	console.log('Loading extension');
 
 	if (newStyles.length === 0) {
@@ -41,7 +47,11 @@ function allowSelect() {
 	}
 
 	setNewStyleTag(newStyles);
-	extensionReady();
+
+	window.addEventListener('keydown', ultraModeLogic, true);
+	window.addEventListener('keyup', ultraModeLogic, true);
+
+	setExtensionBadgeStatus('ready');
 	autoAllowSelectAndCopy(defaultEventHandlersContainer, window, document, document.documentElement, document.body);
 }
 
@@ -102,12 +112,12 @@ function toggleUltraHandlers(events, callback, activate) {
 		events.forEach(function(item) {
 			window.addEventListener(item, callback, true);
 		});
-		chrome.runtime.sendMessage('ultra');
+		setExtensionBadgeStatus('ultra');
 	} else {
 		events.forEach(function(item) {
 			window.removeEventListener(item, callback, true);
 		});
-		chrome.runtime.sendMessage('ready');
+		setExtensionBadgeStatus('ready');
 	}
 }
 const ultraPropagation = function(event) {
@@ -115,10 +125,6 @@ const ultraPropagation = function(event) {
 };
 
 /* *** ULTRA MODE LOGIC END *** */
-
-function extensionReady() {
-	chrome.runtime.sendMessage('ready');
-}
 
 // Saving default handlers to backup them if user disable extension in POPUP
 function autoAllowSelectAndCopy(arr, ...elems) {
@@ -148,11 +154,16 @@ function disableExtension() {
 		});
 	}
 
+	window.removeEventListener('keyup', ultraModeLogic, true);
+	window.removeEventListener('keydown', ultraModeLogic, true);
+
+	setExtensionBadgeStatus('off');
 	console.log('Extension disabled');
 }
 
-window.addEventListener('keydown', ultraModeLogic, true);
-window.addEventListener('keyup', ultraModeLogic, true);
+function setExtensionBadgeStatus(status) {
+	chrome.runtime.sendMessage(status);
+}
 
 //Manage extension from a popup settings
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -166,22 +177,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function getExtensionStatus(target, callback) {
 	chrome.storage.sync.get(target, items => {
 		callback(chrome.runtime.lastError ? null : items);
-	});
-}
-
-function getCurrentTabUrl(callback) {
-	var queryInfo = {
-		active: true,
-		currentWindow: true
-	};
-
-	console.log(chrome);
-	chrome.tabs.query(queryInfo, tabs => {
-		var tab = tabs[0];
-		var url = tab.url;
-
-		console.assert(typeof url == 'string', 'tab.url should be a string');
-
-		callback(url, tab.id);
 	});
 }

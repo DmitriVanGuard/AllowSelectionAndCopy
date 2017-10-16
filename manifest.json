@@ -21,7 +21,6 @@
   },
   "permissions": [
     "activeTab",
-    "tabs",
     "storage",
     "https://ajax.googleapis.com/"
   ],

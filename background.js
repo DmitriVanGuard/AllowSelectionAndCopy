@@ -4,6 +4,8 @@ chrome.runtime.onMessage.addListener(function(request) {
 		badgeState('COPY', [45, 100, 245, 255]);
 	} else if (request === 'wait') {
 		badgeState('WAIT', [40, 40, 40, 255]);
+	} else if (request === 'off') {
+		badgeState('OFF', [40, 40, 40, 255]);
 	} else if (request === 'ultra') {
 		badgeState('ULTRA', [255, 40, 40, 255]);
 	} else {
