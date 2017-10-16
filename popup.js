@@ -1,3 +1,5 @@
+let extStatus = true;
+
 function getCurrentTabUrl(callback) {
   var queryInfo = {
     active: true,
@@ -8,9 +10,12 @@ function getCurrentTabUrl(callback) {
     var tab = tabs[0];
     var url = tab.url;
 
-    console.assert(typeof url == 'string', 'tab.url should be a string');
+    let extURL = url.replace(/https?:\/\//g, '');
+    extURL = extURL.slice(0, extURL.indexOf('/'));
 
-    callback(url, tab.id);
+    console.assert(typeof extURL == 'string', 'tab.url should be a string');
+
+    callback(extURL, tab.id);
   });
 }
 
@@ -38,23 +43,29 @@ function changeExtensionStatus(extStatus, tabId, elem) {
   return extStatus;
 }
 
+function setInitialExtensionStatus(status) {
+  console.log(status);
+  extStatus = status;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   getCurrentTabUrl((url, tabId) => {
     const extToggle = document.getElementById('extToggle');
-    let extStatus = false;
 
     getExtensionStatus(url, savedStatus => {
-      if (savedStatus) {
-        extStatus = savedStatus;
-      }
-      console.log(savedStatus);
+      extStatus = savedStatus.extStatus;
+      extToggle.checked = extStatus;
     });
 
-    extToggle.checked = extStatus;
+    console.log(url);
 
     extToggle.addEventListener('change', () => {
       extStatus = changeExtensionStatus(extStatus, tabId, extToggle);
-      saveExtensionStatus(url, extStatus);
+      // const stat = { [url.slice(0, -1)]: { extStatus: { status: true, parent: url.slice(0, -1) } } };
+      // saveExtensionStatus(url, extStatus);
+      // console.log(stat);
+
+      chrome.storage.sync.set({ [url]: { extStatus } });
     });
   });
 });

@@ -1,3 +1,5 @@
+let extActive = true;
+
 const ultraMode = {
 	toggle: false,
 	18: false,
@@ -26,6 +28,10 @@ chrome.runtime.sendMessage('wait');
 window.addEventListener('load', allowSelect);
 
 function allowSelect() {
+	chrome.storage.sync.get(window.location.host, item => {
+		console.log(item);
+	});
+
 	console.log('Loading extension');
 
 	if (newStyles.length === 0) {
@@ -150,9 +156,32 @@ window.addEventListener('keyup', ultraModeLogic, true);
 
 //Manage extension from a popup settings
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	console.log(sender.tab ? 'from a content script:' + sender.tab.url : 'from the extension');
+	// console.log(sender.tab ? 'from a content script:' + sender.tab.url : 'from the extension');
 	if (request.hasOwnProperty('extStatus')) {
 		request.extStatus ? allowSelect() : disableExtension();
 		console.log(request.extStatus);
 	}
 });
+
+function getExtensionStatus(target, callback) {
+	chrome.storage.sync.get(target, items => {
+		callback(chrome.runtime.lastError ? null : items);
+	});
+}
+
+function getCurrentTabUrl(callback) {
+	var queryInfo = {
+		active: true,
+		currentWindow: true
+	};
+
+	console.log(chrome);
+	chrome.tabs.query(queryInfo, tabs => {
+		var tab = tabs[0];
+		var url = tab.url;
+
+		console.assert(typeof url == 'string', 'tab.url should be a string');
+
+		callback(url, tab.id);
+	});
+}
