@@ -4,12 +4,12 @@
   "name": "Allow Select And Copy",
   "short_name": "Copy Unblock",
   "description": "Allow selection and copy, right click and paste on any webpage with copy protection",
-  "version": "3.1.0",
+  "version": "3.1.5",
 
   "browser_action": {
     "default_icon": "icon16.png",
     "default_popup": "popup.html",
-    "default_title": "ALT + SHIFT + A to enter ULTRA COPY MODE"
+    "default_title": "ALT + SHIFT + A to enter ULTRA COPY MODE.\nClick to open menu"
   },
   "background": {
     "scripts": ["background.js"]
@@ -23,9 +23,6 @@
     "activeTab",
     "storage",
     "https://ajax.googleapis.com/"
-  ],
-  "web_accessible_resources": [
-    "allow_select-and-copy.js"
   ],
   "content_scripts": [
     {

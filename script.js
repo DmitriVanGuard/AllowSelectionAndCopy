@@ -23,16 +23,21 @@ const defaultHandlers = [
 ];
 
 const newStyles = [];
+const maxLoadingTime = 5000;
 
 chrome.runtime.sendMessage('wait');
+let extentionLoadingTimeout = setTimeout(checkExtensionStatus, maxLoadingTime);
+
 window.addEventListener('load', checkExtensionStatus);
 
 function checkExtensionStatus() {
+	clearTimeout(extentionLoadingTimeout);
 	chrome.storage.sync.get(window.location.host, item => {
 		extActive = Object.keys(item).length === 0;
 		extActive ? allowSelect() : setExtensionBadgeStatus('off');
 	});
 }
+
 
 function allowSelect() {
 	console.log('Loading extension');
@@ -65,7 +70,7 @@ function setNewStyleTag(stylesArray) {
 	}
 	newStyleTag.setAttribute('data-asas-style', '');
 	document.head.appendChild(newStyleTag);
-	appendIFrame('head', newStyleTag);
+	// appendIFrame('head', newStyleTag);
 }
 function appendIFrame(target, obj) {
 	const iframes = window.frames;
